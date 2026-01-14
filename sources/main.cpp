@@ -26,8 +26,7 @@ bool createDirectory(std::string dir) {
 }
 
 void writeFile(std::string path, std::ifstream* in, uint32_t address, uint32_t length) {
-	/*std::cout << path << std::endl;
-	std::cout << length << std::endl;
+	std::cout << "path " << path << std::endl; // dude
 	
 	// store to reset when we're done
 	size_t place = in->tellg();
@@ -47,12 +46,7 @@ void writeFile(std::string path, std::ifstream* in, uint32_t address, uint32_t l
 	out.write(buffer, length);
 	
 	in->seekg(place, std::ios_base::beg);
-    std::cout << "yo" << std::endl;*/
     return;
-}
-
-void what() {
-	return;
 }
 
 int main(int argc, char* argv[]) {
@@ -92,9 +86,11 @@ int main(int argc, char* argv[]) {
 		bool previousdir = false;
 		int nest = 0;
 		std::vector<std::string> tree;
+		std::string path;
 		for (uint32_t i = 1; i < arc.table_entries(); i++) {
-			std::string path = "";
+			path = "";
 			std::string entry = UTF16toUTF8(readUTF16str(&infile, arc.entry_filename(i))); // TODO: convert input to LE if necessary
+			std::cout << i << std::endl; // dude
 			
 			/*
 			std::cout << "entry " << entry << " (" << arc.entry_is_directory(i) << ')' << std::endl;
@@ -151,27 +147,28 @@ int main(int argc, char* argv[]) {
 			
 			std::cout << path << std::endl;
 			
-			std::string outpath(outdir);
-			outpath += '/';
-			outpath += path;
+			std::string outpath(outdir + '/' + path);
 			
 			if (arc.entry_is_directory(i)) {
 				previousdir = true;
 				
-				bool created = createDirectory(outdir + '/' + path);
+				bool created = createDirectory(outpath);
 				if(!created) {
-					std::cout << "failed to create dir '" << outdir + '/' + path << '\'' << std::endl;
+					std::cout << "failed to create dir '" << outpath << '\'' << std::endl;
 					return 4;
 				}
 			}
 			else {
 				previousdir = false;
 				
-				std::cout << "okay" << std::endl;
-				//(void)writeFile(outpath, &infile, arc.entry_file(i), arc.entry_filelength(i));
-				std::cout << "so?" << std::endl;
+				std::cout << "okay" << std::endl; // dude
+				writeFile(outpath, &infile, arc.entry_file(i), arc.entry_filelength(i));
+				std::cout << "so?" << std::endl; // dude
 			}
+			std::cout << "sup" << std::endl; // dude
 		}
+		std::cout << "bruh" << std::endl; //dude
 	}
+	std::cout << "wild" << std::endl; // dude
 	return 0;
 }
