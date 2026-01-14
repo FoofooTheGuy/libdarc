@@ -33,8 +33,12 @@ class darc {
 		// return:
 		// 	OK if good,
 		// 	NOT_OPEN if file is not open,
-		// 	TOO_SHORT if the stream is shorter than the header,
-		// 	INVALID_VALUE if header magic is not "darc",
+		// 	TOO_SHORT if the stream is shorter than the header
+		// 	INVALID_MAGIC if header magic is not "darc",
+		//  INVALID_VERSION if the header version is not 0x01000000
+		//  TOO_LONG if the file length said in the header is longer than the actual file,
+		//  TOO_SHORT if the file length said in the header is shorter than the actual file,
+		//  TOO_LONG if the table offset is not equal to the header length
 		return_code initialize(std::ifstream* file);
 		
 		// return: entry_count
