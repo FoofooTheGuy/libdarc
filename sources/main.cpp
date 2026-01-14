@@ -7,7 +7,7 @@
 #include "helpers.hpp"
 
 bool createDirectory(std::string dir) {
-	std::cout << dir << std::endl;
+	//std::cout << dir << std::endl;
 	std::error_code error(0, std::system_category());
 	
 	if(std::filesystem::exists(std::filesystem::path((const char8_t*)&*dir.c_str()), error)) {
@@ -152,7 +152,7 @@ int main(int argc, char* argv[]) {
 				
 				if (!createDirectory(outpath)) {
 					std::cout << "failed to create dir '" << outpath << '\'' << std::endl;
-					return 4;
+					return 5;
 				}
 			}
 			else if (!arc.entry_is_directory(i)) {
