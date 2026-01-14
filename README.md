@@ -1,7 +1,7 @@
 # libdarc
 WIP library to handle .arc files
 
-## features
+## Features
 - read and extract
 
 ## Usage
