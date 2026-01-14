@@ -25,25 +25,22 @@ bool createDirectory(std::string dir) {
 	return true;
 }
 
-void writeFile(std::string path, std::ifstream* in, uint32_t address, uint32_t length) {
-	std::cout << "path " << path << std::endl; // dude
-	
+void writeFile(std::ofstream* out, std::ifstream* in, uint32_t address, uint32_t length) {
 	// store to reset when we're done
 	size_t place = in->tellg();
 	
 	in->seekg(address, std::ios_base::beg);
-	std::ofstream out(std::filesystem::path((const char8_t*)&*path.c_str()), std::ios_base::out | std::ios_base::binary);
 	
 	// https://stackoverflow.com/a/4063994
 	const size_t buffer_size = 4096;
 	char buffer[buffer_size];
 	while (length >= sizeof buffer) {
 		in->read(buffer, buffer_size);
-		out.write(buffer, buffer_size);
+		out->write(buffer, buffer_size);
 		length -= buffer_size;
 	}
 	in->read(buffer, length);
-	out.write(buffer, length);
+	out->write(buffer, length);
 	
 	in->seekg(place, std::ios_base::beg);
     return;
@@ -86,11 +83,10 @@ int main(int argc, char* argv[]) {
 		bool previousdir = false;
 		int nest = 0;
 		std::vector<std::string> tree;
-		std::string path;
 		for (uint32_t i = 1; i < arc.table_entries(); i++) {
-			path = "";
+			//std::string path = "";
+			std::string outpath = outdir + '/';
 			std::string entry = UTF16toUTF8(readUTF16str(&infile, arc.entry_filename(i))); // TODO: convert input to LE if necessary
-			std::cout << i << std::endl; // dude
 			
 			/*
 			std::cout << "entry " << entry << " (" << arc.entry_is_directory(i) << ')' << std::endl;
@@ -136,39 +132,34 @@ int main(int argc, char* argv[]) {
 				tree.push_back(entry);
 			}
 			
-			for (const auto &s : tree) {
+			for (auto s : tree) {
 				if (strcmp(s.c_str(), ".") != 0) { // special root dir
-					path += s + '/';
+					outpath += s + '/';
 				}
 			}
 			if (!arc.entry_is_directory(i)) {
-				path += entry;
+				outpath += entry;
 			}
 			
-			std::cout << path << std::endl;
-			
-			std::string outpath(outdir + '/' + path);
+			std::cout << outpath << std::endl;
 			
 			if (arc.entry_is_directory(i)) {
 				previousdir = true;
 				
 				bool created = createDirectory(outpath);
-				if(!created) {
+				if (!created) {
 					std::cout << "failed to create dir '" << outpath << '\'' << std::endl;
 					return 4;
 				}
 			}
-			else {
+			else if (!arc.entry_is_directory(i)) {
 				previousdir = false;
+
+				std::ofstream out(outpath, std::ios_base::out | std::ios_base::binary);
 				
-				std::cout << "okay" << std::endl; // dude
-				writeFile(outpath, &infile, arc.entry_file(i), arc.entry_filelength(i));
-				std::cout << "so?" << std::endl; // dude
+				writeFile(&out, &infile, arc.entry_file(i), arc.entry_filelength(i));
 			}
-			std::cout << "sup" << std::endl; // dude
 		}
-		std::cout << "bruh" << std::endl; //dude
 	}
-	std::cout << "wild" << std::endl; // dude
 	return 0;
 }
