@@ -1,3 +1,5 @@
+// Example program for libdarc
+
 #include <filesystem>
 #include <iostream>
 #include <darc.hpp>
@@ -34,7 +36,7 @@ void writeFile(std::ofstream* out, std::ifstream* in, uint32_t address, uint32_t
 	// https://stackoverflow.com/a/4063994
 	const size_t buffer_size = 4096;
 	char buffer[buffer_size];
-	while (length >= sizeof buffer) {
+	while (length > sizeof buffer) {
 		in->read(buffer, buffer_size);
 		out->write(buffer, buffer_size);
 		length -= buffer_size;
@@ -86,7 +88,7 @@ int main(int argc, char* argv[]) {
 		for (uint32_t i = 1; i < arc.table_entries(); i++) {
 			//std::string path = "";
 			std::string outpath = outdir + '/';
-			std::string entry = UTF16toUTF8(readUTF16str(&infile, arc.entry_filename(i))); // TODO: convert input to LE if necessary
+			std::string entry = UTF16toUTF8(readUTF16str(&infile, arc.entry_filename(i))); // TODO: convert input to LE if necessary (i don't care)
 			
 			/*
 			std::cout << "entry " << entry << " (" << arc.entry_is_directory(i) << ')' << std::endl;
