@@ -12,7 +12,7 @@ bool createDirectory(std::string dir) {
 	
 	if(std::filesystem::exists(std::filesystem::path((const char8_t*)&*dir.c_str()), error)) {
 		if(!std::filesystem::is_empty(std::filesystem::path((const char8_t*)&*dir.c_str()), error)) {
-			std::cout << "Directory '" << dir << "' exists and is not empty" << std::endl;
+			std::cout << "Directory '" << dir << "' already exists and is not empty" << std::endl;
 			return false;
 		}
 	}
@@ -78,8 +78,10 @@ int main(int argc, char* argv[]) {
 	
 	puts("");
 	
-	createDirectory(outdir);
-	
+	if (!createDirectory(outdir)) {
+		std::cout << "failed to create dir '" << outdir << '\'' << std::endl;
+		return 4;
+	}
 	// get absolute tree
 	{
 		bool previousdir = false;
@@ -148,8 +150,7 @@ int main(int argc, char* argv[]) {
 			if (arc.entry_is_directory(i)) {
 				previousdir = true;
 				
-				bool created = createDirectory(outpath);
-				if (!created) {
+				if (!createDirectory(outpath)) {
 					std::cout << "failed to create dir '" << outpath << '\'' << std::endl;
 					return 4;
 				}
