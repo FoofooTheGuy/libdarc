@@ -1,7 +1,6 @@
 #include <limits>
 #include <array>
 
-#include "internal.hpp"
 #include "darc.hpp"
 
 /* helper functions are here to avoid clutter in darc.cpp */
@@ -23,60 +22,11 @@ std::map<darc::return_code, std::string> darc::return_codes {
 	{INTERNAL, "Internal program error, this should never happen"},
 };
 
-darc::return_code darc::readU16(std::ifstream* file, uint16_t* value) {
-	file->read(
-		reinterpret_cast<char*>(value),
-		sizeof(uint16_t)
-	);
-	
-	if constexpr (std::endian::native == std::endian::big) {
-		if (file_endianess == endian::little) {
-			*value = byteswap<uint16_t>(*value);
-		}
-	}
-	else if constexpr (std::endian::native == std::endian::little) {
-		if (file_endianess == endian::big) {
-			*value = byteswap<uint16_t>(*value);
-		}
-	}
-	else { // apparently this is possible but I'm not going to support it
-		return return_code::INTERNAL;
-	}
-	return return_code::OK;
-}
-
-darc::return_code darc::readU32(std::ifstream* file, uint32_t* value) {
-	file->read(
-		reinterpret_cast<char*>(value),
-		sizeof(uint32_t)
-	);
-	
-	if constexpr (std::endian::native == std::endian::big) {
-		if (file_endianess == endian::little) {
-			*value = byteswap<uint32_t>(*value);
-		}
-	}
-	else if constexpr (std::endian::native == std::endian::little) {
-		if (file_endianess == endian::big) {
-			*value = byteswap<uint32_t>(*value);
-		}
-	}
-	else { // apparently this is possible but I'm not going to support it
-		return return_code::INTERNAL;
-	}
-	return return_code::OK;
-}
-
 std::string darc::magic_to_string() {
 	std::string magicstr;
-	uint32_t magic = header.magic;
-	
-	if constexpr (std::endian::native == std::endian::big) {
-		magic = byteswap<uint32_t>(magic); // does this work?
-	}
 	
 	for (auto c : std::bit_cast<std::array<char,
-		sizeof(uint32_t)>>(magic))
+		sizeof(uint32_t)>>(header.magic))
 	{
 		magicstr += c;
 	}

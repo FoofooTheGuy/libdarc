@@ -4,9 +4,7 @@
 #include "darc.hpp"
 
 
-
 darc::return_code darc::initialize(std::ifstream* file) {
-	return_code ret;
 	if (!file->is_open()) {
 		return return_code::NOT_OPEN;
 	}
@@ -21,10 +19,7 @@ darc::return_code darc::initialize(std::ifstream* file) {
 		return return_code::TOO_SHORT;
 	}
 	
-	ret = readU32(file, &header.magic);
-	if (ret != return_code::OK) {
-		return ret;
-	}
+	read<uint32_t>(file, &header.magic);
 	if (header.magic != DARC_MAGIC) {
 		return return_code::INVALID_MAGIC;
 	}
@@ -41,23 +36,14 @@ darc::return_code darc::initialize(std::ifstream* file) {
 		file_endianess = endian::big; 
 	}
 	
-	ret = readU16(file, &header.header_length);
-	if (ret != return_code::OK) {
-		return ret;
-	}
+	read<uint16_t>(file, &header.header_length);
 	
-	ret = readU32(file, &header.version);
-	if (ret != return_code::OK) {
-		return ret;
-	}
+	read<uint32_t>(file, &header.version);
 	if (header.version != DARC_VERSION) {
 		return return_code::INVALID_VERSION;
 	}
 
-	ret = readU32(file, &header.file_length);
-	if (ret != return_code::OK) {
-		return ret;
-	}
+	read<uint32_t>(file, &header.file_length);
 	if (header.file_length > realsize) {
 		return return_code::TOO_LONG;
 	}
@@ -65,59 +51,29 @@ darc::return_code darc::initialize(std::ifstream* file) {
 		return return_code::TOO_SHORT;
 	}
 
-	ret = readU32(file, &header.table_offset);
-	if (ret != return_code::OK) {
-		return ret;
-	}
+	read<uint32_t>(file, &header.table_offset);
 	if (header.table_offset != header.header_length) { // is it wrong to assume this?
 		return return_code::TOO_LONG;
 	}
 
-	ret = readU32(file, &header.table_length);
-	if (ret != return_code::OK) {
-		return ret;
-	}
-
-	ret = readU32(file, &header.file_data_offset);
-	if (ret != return_code::OK) {
-		return ret;
-	}
+	read<uint32_t>(file, &header.table_length);
+	read<uint32_t>(file, &header.file_data_offset);
 
 	file->seekg(header.table_offset);
-	ret = readU32(file, &entries.at(0).file_name_offset); // NULL entry
-	if (ret != return_code::OK) {
-		return ret;
-	}
-
-	ret = readU32(file, &entries.at(0).offset);
-	if (ret != return_code::OK) {
-		return ret;
-	}
-
-	ret = readU32(file, &entries.at(0).length);
-	if (ret != return_code::OK) {
-		return ret;
-	}
+	
+	read<uint32_t>(file, &entries.at(0).file_name_offset); // read NULL entry
+	read<uint32_t>(file, &entries.at(0).offset);
+	read<uint32_t>(file, &entries.at(0).length);
+	
 	entry_count = entries.at(0).length;
 	
-	for (uint32_t i = 1; i < entry_count; i++) {
+	for (uint32_t i = 1; i < entry_count; i++) { // read the rest of the entries
 		uint32_t FILE_NAME_OFFSET;
 		uint32_t OFFSET;
 		uint32_t LENGTH;
-		ret = readU32(file, &FILE_NAME_OFFSET);
-		if (ret != return_code::OK) {
-			return ret;
-		}
-
-		ret = readU32(file, &OFFSET);
-		if (ret != return_code::OK) {
-			return ret;
-		}
-
-		ret = readU32(file, &LENGTH);
-		if (ret != return_code::OK) {
-			return ret;
-		}
+		read<uint32_t>(file, &FILE_NAME_OFFSET);
+		read<uint32_t>(file, &OFFSET);
+		read<uint32_t>(file, &LENGTH);
 		entries.push_back({FILE_NAME_OFFSET, OFFSET, LENGTH});
 	}
 	

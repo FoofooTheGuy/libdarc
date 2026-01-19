@@ -77,6 +77,14 @@ class darc {
 	private:
 		/* internal use & helper functions */
 		
+		template<class T>
+		void read(std::ifstream* file, T* value) {
+			file->read(
+				reinterpret_cast<char*>(value),
+				sizeof(T)
+			);
+		}
+		
 		typedef struct darc_header {
 			uint32_t magic;            // Magic "darc"
 			uint8_t endianess[2];      // Endianess FF FE: little endian, FE FF: Big endian
