@@ -10,8 +10,8 @@ bool createDirectory(std::string dir) {
 	//std::cout << dir << std::endl;
 	std::error_code error(0, std::system_category());
 	
-	if(std::filesystem::exists(std::filesystem::path((const char8_t*)&*dir.c_str()), error)) {
-		if(!std::filesystem::is_empty(std::filesystem::path((const char8_t*)&*dir.c_str()), error)) {
+	if(std::filesystem::exists(dir, error)) {
+		if(!std::filesystem::is_empty(dir, error)) {
 			std::cout << "Directory '" << dir << "' already exists and is not empty" << std::endl;
 			return false;
 		}
@@ -20,7 +20,7 @@ bool createDirectory(std::string dir) {
 		return false;
 	}
 	
-	std::filesystem::create_directory(std::filesystem::path((const char8_t*)&*dir.c_str()), error);
+	std::filesystem::create_directory(dir, error);
 	if(error) {
 		return false;
 	}
