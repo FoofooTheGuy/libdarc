@@ -13,5 +13,4 @@ This project is based on previous research and documentation. Thanks to these re
 - [darctool](https://github.com/yellows8/darctool)
 
 ## TODO
-1. write darc
-2. read subdirectories + Does any darc actually have subdirectories?
+- read subdirectories + Does any darc actually have subdirectories?
