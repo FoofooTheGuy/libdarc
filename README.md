@@ -3,6 +3,7 @@ library to handle .arc files
 
 ## Features
 - partial read
+- write
 
 ## Usage
 There is an example program in [sources/](https://github.com/FoofooTheGuy/libdarc/tree/main/sources) demonstrating functionality of the library. The actual library is in [lib/](https://github.com/FoofooTheGuy/libdarc/tree/main/lib)
