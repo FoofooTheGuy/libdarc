@@ -3,7 +3,6 @@
 
 #include "darc.hpp"
 
-
 darc::return_code darc::initialize(std::ifstream* file) {
 	if (!file->is_open()) {
 		return return_code::NOT_OPEN;

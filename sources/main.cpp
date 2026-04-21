@@ -4,7 +4,7 @@
 #include <iostream>
 #include <darc.hpp>
 
-#include "helpers.hpp"
+#include "utf.hpp"
 
 bool createDirectory(std::string dir) {
 	//std::cout << dir << std::endl;
@@ -90,7 +90,7 @@ int main(int argc, char* argv[]) {
 		for (uint32_t i = 1; i < arc.table_entries(); i++) {
 			//std::string path = "";
 			std::string outpath = outdir + '/';
-			std::string entry = UTF16toUTF8(readUTF16str(&infile, arc.entry_filename(i))); // TODO: convert input to LE if necessary (i don't care)
+			std::string entry = UTF::convert16to8(UTF::readUTF16str(&infile, arc.entry_filename(i))); // TODO: convert input to LE if necessary (i don't care)
 			
 			/*
 			std::cout << "entry " << entry << " (" << arc.entry_is_directory(i) << ')' << std::endl;
