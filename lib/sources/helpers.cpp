@@ -1,6 +1,7 @@
 #include <limits>
 #include <array>
 
+#include "darctool.hpp"
 #include "darc.hpp"
 
 /* helper functions are here to avoid clutter in darc.cpp */
@@ -32,3 +33,15 @@ std::string darc::magic_to_string() {
 	}
 	return magicstr;
 }
+
+// for darctool
+
+std::map<darctool::return_code, std::string> darctool::return_codes {
+	{OK, "No errors"},
+	{FAIL_OPEN_OUTPUT, "Failed to open the output archive file"},
+	{FAIL_OPEN_INPUT, "Failed to open the file for reading"},
+	{NO_STARTENTRY, "The first table actual entry wasn't initialized. The input root directory is likely empty"},
+	{NO_MEM, "Failed to allocate memory for the table entry"},
+	{INVALID_FS, "Invalid FS object type"},
+	{FILESYSTEM_ERROR, "std::filesystem produced an error"},
+};

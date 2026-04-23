@@ -1,7 +1,5 @@
 #include <filesystem>
-#include <iostream>
 #include <cstring>
-#include <fstream>
 #include <vector>
 
 #include "utf.hpp"
@@ -46,7 +44,7 @@ static std::vector<darcbuild_table_entry*> g_table_ptr_vector;
 
 static std::vector<uint16_t> g_root_dir_name;
 
-int build_darc_table(darcbuild_table_entry *startentry) {
+darctool::return_code build_darc_table(darcbuild_table_entry *startentry) {
 	uint32_t direntry_index = 0;
 	
 	darcbuild_table_entry *curentry = startentry;
@@ -63,10 +61,10 @@ int build_darc_table(darcbuild_table_entry *startentry) {
 			//printf("dir name: %s\n", entrystr.c_str());
 			
 			if(direntry_index) {
-				newentry = new darcbuild_table_entry; // bad
+				newentry = new darcbuild_table_entry;
 				if (newentry == NULL) {
 					//printf("Failed to allocate memory for the table entry.\n");
-					return 5;
+					return darctool::return_code::NO_MEM;
 				}
 				g_table_ptr_vector.push_back(newentry);
 				newentry = {};
@@ -89,10 +87,10 @@ int build_darc_table(darcbuild_table_entry *startentry) {
 				g_basearc_path = fullentrystr + "/";
 				
 				//puts("new entry"); // dude
-				newentry = new darcbuild_table_entry; // bad
+				newentry = new darcbuild_table_entry;
 				if (newentry == NULL) {
 					//printf("Failed to allocate memory for the table entry.\n");
-					return 5;
+					return darctool::return_code::NO_MEM;
 				}
 				g_table_ptr_vector.push_back(newentry);
 				newentry = {};
@@ -117,11 +115,11 @@ int build_darc_table(darcbuild_table_entry *startentry) {
 			}
 			else {
 				//printf("Invalid FS object type.\n");
-				return 14;
+				return darctool::return_code::INVALID_FS;
 			}
 			if(error) {
 				std::cout << error.message() << std::endl;
-				return 15;
+				return darctool::return_code::FILESYSTEM_ERROR;
 			}
 
 			direntry_index++;
@@ -129,13 +127,13 @@ int build_darc_table(darcbuild_table_entry *startentry) {
 	}
 	if(error) {
 		std::cout << error.message() << std::endl;
-		return 12;
+		return darctool::return_code::FILESYSTEM_ERROR;
 	}
 
-	return 0;
+	return darctool::return_code::OK;
 }
 
-int update_darc_table(darcbuild_table_entry *startentry) {
+darctool::return_code update_darc_table(darcbuild_table_entry *startentry) {
 	darcbuild_table_entry *curentry = startentry;
 	darcbuild_table_entry *newentry;
 
@@ -163,10 +161,10 @@ int update_darc_table(darcbuild_table_entry *startentry) {
 		curentry = curentry->next;
 	}
 	
-	return 0;
+	return darctool::return_code::OK;
 }
 
-int update_darc_table_final(darcbuild_table_entry *startentry) {
+darctool::return_code update_darc_table_final(darcbuild_table_entry *startentry) {
 	darcbuild_table_entry *curentry = startentry;
 	
 	while(curentry) {
@@ -193,27 +191,27 @@ int update_darc_table_final(darcbuild_table_entry *startentry) {
 		curentry = curentry->next;
 	}
 	
-	return 0;
+	return darctool::return_code::OK;
 }
 
-int build_darc(darcbuild_table_entry *startentry) {
-	int ret = 0;
+darctool::return_code build_darc(darcbuild_table_entry *startentry) {
+	darctool::return_code ret = darctool::return_code::OK;
 	
 	ret = build_darc_table(startentry);
-	if (ret) {
+	if (ret != darctool::return_code::OK) {
 		return ret;
 	}
 	
 	if (!startentry->initialized) {
 		//printf("Error: the first table actual entry wasn't initialized, the input root directory is likely empty.\n");
-		return 16;
+		return darctool::return_code::NO_STARTENTRY;
 	}
 	
 	g_filenametable_curentryoffset = 0x2 + g_root_dir_name.size(); // length of dir names
 	g_total_table_entries = 2;
 	
 	ret = update_darc_table(startentry);
-	if (ret) {
+	if (ret != darctool::return_code::OK) {
 		return ret;
 	}
 	
@@ -222,14 +220,11 @@ int build_darc(darcbuild_table_entry *startentry) {
 	g_filedata_offset = 0x1c + g_table_size;
 	
 	ret = update_darc_table_final(startentry);
-	if (ret) {
-		return ret;
-	}
 	
-	return 0;
+	return ret;
 }
 
-int writeout_table_entries(darcbuild_table_entry *startentry, int type, std::ofstream *farchive) {
+darctool::return_code writeout_table_entries(darcbuild_table_entry *startentry, int type, std::ofstream *farchive) {
 	darcbuild_table_entry *curentry = startentry;
 	
 	while(curentry) {
@@ -263,7 +258,7 @@ int writeout_table_entries(darcbuild_table_entry *startentry, int type, std::ofs
 				std::ifstream f(curentry->fs_path, std::ios_base::in | std::ios_base::binary);
 				if (!f.is_open()) {
 					//std::cout << "Failed to open the following file for reading: " << curentry->fs_path << std::endl;
-					return 10;
+					return darctool::return_code::FAIL_OPEN_INPUT;
 				}
 				
 				f.seekg(0, std::ios_base::beg);
@@ -282,12 +277,17 @@ int writeout_table_entries(darcbuild_table_entry *startentry, int type, std::ofs
 		curentry = curentry->next;
 	}
 	
-	return 0;
+	return darctool::return_code::OK;
 }
 
-//int main(int argc, char** argv) {
-int darctool::write_darc(const std::string directory, const std::string darc_file, const std::string root_directory) {
-	int ret = 0;
+void free_g_table_ptrs() {
+	for(const auto &p : g_table_ptr_vector) {
+		delete p;
+	}
+}
+
+darctool::return_code darctool::write_darc(const std::string directory, const std::string darc_file, const std::string root_directory) {
+	return_code ret = return_code::OK;
 
 	g_root_dir_name = UTF::convert8to16(root_directory);
 	
@@ -309,7 +309,8 @@ int darctool::write_darc(const std::string directory, const std::string darc_fil
 	
 	ret = build_darc(&buildtable_firstentry);
 	
-	if (ret) {
+	if (ret != return_code::OK) {
+		free_g_table_ptrs();
 		return ret;
 	}
 	
@@ -333,7 +334,8 @@ int darctool::write_darc(const std::string directory, const std::string darc_fil
 	std::ofstream farchive(darc_file, std::ios_base::out | std::ios_base::binary);
 	if (!farchive.is_open()) {
 		//puts("Failed to open the output archive file.");
-		return 2;
+		free_g_table_ptrs();
+		return return_code::FAIL_OPEN_OUTPUT;
 	}
 	
 	farchive.write(reinterpret_cast<char*>(&header), sizeof header);
@@ -350,7 +352,8 @@ int darctool::write_darc(const std::string directory, const std::string darc_fil
 	farchive.write(reinterpret_cast<char*>(&tmpentries), sizeof tmpentries);
 	
 	ret = writeout_table_entries(&buildtable_firstentry, 0, &farchive);
-	if (ret) {
+	if (ret != return_code::OK) {
+		free_g_table_ptrs();
 		return ret;
 	}
 	
@@ -365,7 +368,8 @@ int darctool::write_darc(const std::string directory, const std::string darc_fil
 	//puts("write archive names");
 	
 	ret = writeout_table_entries(&buildtable_firstentry, 1, &farchive);
-	if (ret) {
+	if (ret != return_code::OK) {
+		free_g_table_ptrs();
 		return ret;
 	}
 	
@@ -381,13 +385,15 @@ int darctool::write_darc(const std::string directory, const std::string darc_fil
 	//puts("write files data");
 	
 	ret = writeout_table_entries(&buildtable_firstentry, 2, &farchive);
-	if (ret) {
+	if (ret != return_code::OK) {
+		free_g_table_ptrs();
 		return ret;
 	}
 	
-	for(const auto &p : g_table_ptr_vector) {
-		delete p;
-	}
-	
+	free_g_table_ptrs();
 	return ret;
+}
+
+std::string darctool::return_str(return_code ret) {
+	return return_codes[ret];
 }
