@@ -2,7 +2,7 @@
 library to handle .arc files
 
 ## Features
-- partial read
+- (partial?) read
 - write
 
 ## Usage
@@ -10,8 +10,8 @@ There is an example program in [sources/](https://github.com/FoofooTheGuy/libdar
 
 ## Credits
 This project is based on previous research and documentation. Thanks to these resources:
-- [3DBrew](https://www.3dbrew.org/wiki/DARC)
-- [darctool](https://github.com/yellows8/darctool)
+- [3DBrew](https://www.3dbrew.org/wiki/DARC): General documentation
+- [darctool](https://github.com/yellows8/darctool): Code for writing
 
 ## TODO
 - read subdirectories + Does any darc actually have subdirectories?
