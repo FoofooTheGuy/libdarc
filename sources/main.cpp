@@ -2,6 +2,8 @@
 
 #include <filesystem>
 #include <iostream>
+
+#include <darctool.hpp>
 #include <darc.hpp>
 
 #include "utf.hpp"
@@ -51,12 +53,31 @@ void writeFile(std::ofstream* out, std::ifstream* in, uint32_t address, uint32_t
 int main(int argc, char* argv[]) {
 	if (argc < 3) {
 		std::cout << "usage:\n" <<
-		"extract archive: " << argv[0] << " <input .arc file> <new output directory>" << std::endl;
+		"extract archive: " << argv[0] << " <input .arc file> <new output directory>\n" <<
+		"build archive: " << argv[0] << " <input directory> <new output .arc file> [root directory name]" << std::endl;
 		return 1;
 	}
-	std::string outdir(argv[2]);
+	
+	std::error_code error;
+	if(std::filesystem::is_directory(argv[1], error)) { // build
+		std::cout << "build archive" << std::endl;
+		if(argc == 4) {
+			darctool::write_darc(argv[1], argv[2], argv[3]);
+		}
+		else {
+			darctool::write_darc(argv[1], argv[2]);
+		}
+		return 0;
+	}
+	if(error) {
+		std::cout << error.message() << std::endl;
+		return 2;
+	}
+	// extract
 	std::ifstream infile(argv[1],
 						 std::ios_base::in | std::ios_base::binary);
+	std::string outdir(argv[2]);
+	
 	darc arc;
 	
 	darc::return_code ret = arc.initialize(&infile);
@@ -66,11 +87,11 @@ int main(int argc, char* argv[]) {
 	darc::endian endianess = arc.get_endianess();
 	if (endianess == darc::endian::mixed) {
 		std::cout << "bad endianess value" << std::endl;
-		return 2;
+		return 3;
 	}
 	else if (endianess == darc::endian::big) {
 		std::cout << "We don't actually support big endian (yet?)" << std::endl;
-		return 3;
+		return 4;
 	}
 	else if (endianess == darc::endian::little) {
 		std::cout << "little endian, good" << std::endl;
@@ -80,7 +101,7 @@ int main(int argc, char* argv[]) {
 	
 	if (!createDirectory(outdir)) {
 		std::cout << "failed to create dir '" << outdir << '\'' << std::endl;
-		return 4;
+		return 5;
 	}
 	// get absolute tree
 	{
@@ -152,12 +173,12 @@ int main(int argc, char* argv[]) {
 				
 				if (!createDirectory(outpath)) {
 					std::cout << "failed to create dir '" << outpath << '\'' << std::endl;
-					return 5;
+					return 6;
 				}
 			}
 			else if (!arc.entry_is_directory(i)) {
 				previousdir = false;
-
+				
 				std::ofstream out(outpath, std::ios_base::out | std::ios_base::binary);
 				
 				writeFile(&out, &infile, arc.entry_file(i), arc.entry_filelength(i));

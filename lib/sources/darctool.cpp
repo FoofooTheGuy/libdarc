@@ -9,6 +9,10 @@ uint32_t darctool::g_total_table_entries = 0;
 uint32_t darctool::g_filedata_offset = 0;
 uint32_t darctool::g_filenametable_curentryoffset = 0;
 
+std::string darctool::g_basearc_path;
+std::vector<darctool::darcbuild_table_entry*> darctool::g_table_ptr_vector;
+std::vector<uint16_t> darctool::g_root_dir_name;
+
 darctool::return_code darctool::build_darc_table(darcbuild_table_entry *startentry) {
 	uint32_t direntry_index = 0;
 	
@@ -23,7 +27,7 @@ darctool::return_code darctool::build_darc_table(darcbuild_table_entry *startent
 			std::string entrystr = entry.path().filename().string();
 			std::string fullentrystr = entry.path().string();
 			
-			//printf("dir name: %s\n", entrystr.c_str());darctool::
+			//printf("dir name: %s\n", entrystr.c_str());
 			
 			if(direntry_index) {
 				newentry = new darcbuild_table_entry;
@@ -32,7 +36,7 @@ darctool::return_code darctool::build_darc_table(darcbuild_table_entry *startent
 					return return_code::NO_MEM;
 				}
 				g_table_ptr_vector.push_back(newentry);
-				newentry = {};
+				*newentry = {};
 				
 				curentry->next = newentry;
 				curentry = newentry;
@@ -58,7 +62,7 @@ darctool::return_code darctool::build_darc_table(darcbuild_table_entry *startent
 					return return_code::NO_MEM;
 				}
 				g_table_ptr_vector.push_back(newentry);
-				newentry = {};
+				*newentry = {};
 				
 				curentry->child = newentry;
 				newentry->parent = curentry;
