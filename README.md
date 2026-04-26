@@ -1,5 +1,5 @@
 # libdarc
-library to handle .arc files
+Basic library to handle .arc files
 
 ## Features
 - (partial?) read/extract
