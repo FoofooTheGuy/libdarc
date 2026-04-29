@@ -11,7 +11,7 @@ There is an example program in [sources/](https://github.com/FoofooTheGuy/libdar
 ## Credits
 This project is based on previous research and documentation. Thanks to these resources:
 - [3DBrew](https://www.3dbrew.org/wiki/DARC): General documentation
-- [darctool](https://github.com/yellows8/darctool): Code for writing
+- [darctool](https://github.com/yellows8/darctool): Original code for building the archive (of which I have ported to C++ and adapted into this library)
 
 ## TODO
 - read subdirectories + Does any darc actually have subdirectories?
