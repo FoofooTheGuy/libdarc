@@ -27,7 +27,7 @@ class darctool {
 		
 		static std::string return_str(return_code ret);
 	private:
-		typedef struct {
+		typedef struct darc_header {
 			uint32_t magicnum = 0; // 0x63726164 "darc"
 			uint8_t bom[2] = {0, 0};
 			uint16_t headerlen = 0;
@@ -38,7 +38,7 @@ class darctool {
 			uint32_t filedata_offset = 0;
 		} darc_header;
 
-		typedef struct {
+		typedef struct darc_table_entry {
 			uint32_t filename_offset = 0;
 			uint32_t offset = 0;
 			uint32_t size = 0;

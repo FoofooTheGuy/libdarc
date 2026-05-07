@@ -131,7 +131,7 @@ darc::return_code darc::print_info() {
 		" table offset: 0x%04X\n"
 		" table length: 0x%04X (%d)\n"
 		" file data offset: 0x%04X\n"
-		"table: (\%d entries)\n"
+		"table: (%d entries)\n"
 		,
 		header.magic, magic_to_string().c_str(),
 		header.endianess[0], header.endianess[1],

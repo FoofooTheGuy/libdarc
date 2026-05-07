@@ -1,5 +1,6 @@
 #include <limits>
 #include <array>
+#include <bit>
 
 #include "darctool.hpp"
 #include "darc.hpp"

@@ -74,8 +74,7 @@ int main(int argc, char* argv[]) {
 		return 2;
 	}
 	// extract
-	std::ifstream infile(argv[1],
-						 std::ios_base::in | std::ios_base::binary);
+	std::ifstream infile(argv[1], std::ios_base::in | std::ios_base::binary);
 	std::string outdir(argv[2]);
 	
 	darc arc;

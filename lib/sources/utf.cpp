@@ -49,9 +49,11 @@ std::string UTF::convert16to8(const std::string& input) {
 	size_t utf16length = input.size() / 2; // divide by 2 because it's a u8 size going into a u16 array
 	
 	std::cout << input << std::endl;
+	/*
 	for(const auto &c : input) {
 		printf("%02X\n", c);
 	}
+	*/
 	
 	std::vector<uint16_t> utf16 = std::vector<uint16_t>(utf16length);
 	memcpy(utf16.data(), input.data(), input.size());
