@@ -1,6 +1,6 @@
 #include "utf.hpp"
 
-size_t chrcount(const std::string& str) {
+size_t UTF::chrcount(const std::string& str) {
 	size_t length = 0;
 	for (char c : str) {
 		if ((c & 0xC0) != 0x80) {
