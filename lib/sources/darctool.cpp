@@ -293,7 +293,7 @@ darctool::return_code darctool::write_darc(const std::string directory, const st
 	}
 		
 	header.filesize = g_filedata_offset;
-	header.table_size = real_filedata_offset - 0x1C;
+	header.table_size = g_table_size;
 	header.filedata_offset = real_filedata_offset;
 	
 	//puts("Writing the actual archive to the file...");
